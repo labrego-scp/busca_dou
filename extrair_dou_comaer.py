@@ -30,7 +30,7 @@ def get_urls(proxy, date):
     #print(url)
 
     # Fazer a solicitação HTTP com o proxy configurado através das variáveis de ambiente
-    response = requests.post(url)
+    response = requests.post(url, verify=False)
 
     # Verificar se há resultados ou não
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -100,7 +100,7 @@ def get_pub_content(proxy, url):
     url = f"https://www.in.gov.br/web/dou/-/{url}"
 
     # Fazer a solicitação HTTP com o proxy configurado através das variáveis de ambiente
-    response = requests.post(url)
+    response = requests.post(url, verify=False)
 
     # Verificar se há resultados ou não
     soup = BeautifulSoup(response.text, 'html.parser')

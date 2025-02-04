@@ -1,23 +1,26 @@
 import urllib.parse
-import getpass
 import time
 import sys
 import os
+import warnings
 from datetime import datetime
 import pandas as pd
 from dotenv import load_dotenv
-from fuzzywuzzy import fuzz
+from dotenv import load_dotenv
 from tqdm import tqdm
 from extrair_dou_comaer import edc
-from gemini import gemini
-from helpers import normalizar_string, calcular_ratio
-from get_data_pw import get_data_pw
+from gemini import gemini2
+from helpers import calcular_ratio, enviar_email, gerar_pdf
+
+
+# Oculta os warnings
+warnings.filterwarnings("ignore")
 
 # Inicializa o contador de tempo
 start_time = time.time()
 
 # Inicialzia o conteúdo da saída HTML
-conteudo_html = ""
+conteudo_html = "<meta charset='UTF-8'>"
 
 ######### COLETA DOS DADOS DO PROXY E DO .ENV #########
 
@@ -28,8 +31,8 @@ cred_google = os.getenv('GSHEET_CRED')
 url_sheet = os.getenv('GSHEET_KEY_SHEET')
 
 # Proxy
-usuario = input("Usuário: ")
-senha_bruta = getpass.getpass("Senha: ")
+usuario = os.getenv('USUARIO_PROXY')
+senha_bruta = os.getenv('PASS_PROXY')
 senha = urllib.parse.quote(senha_bruta, safe='')
 adress = os.getenv('ENDERECO_PROXY')
 proxy = [usuario, senha, adress]
@@ -37,10 +40,8 @@ proxy = [usuario, senha, adress]
 ######### COLETA DOS DADOS DAS PUBLICAÇÕES DO DIA #########
 
 # Define a data
-#date = "5/8/2024"
-#date = "19/3/2024"
-#date = "15/7/2024"
 date = datetime.now().strftime('%d/%m/%Y')
+date = "30/01/2025"
 
 print("Inicializando a coleta dos dados no DOU")
 try:
@@ -53,103 +54,98 @@ except Exception as e:
     sys.exit(1)
 print("Finalizada a coleta dos dados no DOU")
 
-######### BUSCA DOS LIAS E PRCS DO PLANINFRAWEB #########
-try:
-    lista_pw = get_data_pw(proxy, cred_google, url_sheet)
-    #print (lista_pw.info())
-except Exception as e:
-    print(f"Erro: {e}")
-    sys.exit(1)
+publicacoes = dict()
+content = []
+orgao = []
+tipo = []
+link = []
 
-######### DEFINIÇÃO DA DESCRIÇÕES DO PLANINFRAWEB #########
+for pub in tqdm(pub_cont):
+    content.append(pub[0])
+    orgao.append(pub[1])
+    tipo.append(pub[2])
+    link.append(pub[3])
 
-#descricao = "Adequação da sala segura de servidores do CCA-RJ"
-#descricao = "Conectividade entre o CINDACTA IV e seus Destacamentos"
-#descricoes = lista_pw["DESCRIÇÃO"].tolist()[14:]
-descricoes = lista_pw["DESCRIÇÃO"].tolist()
-#descricoes = []
-#print(descricoes)
-#descricao = input("Escreva a descrição do objeto: ")
+publicacoes['content'] = content
+publicacoes['orgao'] = orgao
+publicacoes['tipo'] = tipo
+publicacoes['link'] = link
+  
 
-for descricao in tqdm(descricoes):
-    ######### ACIONAMENTO DA IA #########
-
-    # Configurar o temporizador (segundos)
-    intervalo_entre_solicitacoes = 10
-
-    saida_ai = pd.DataFrame(columns=["Veredicto_AI", "Justificativa", "Objeto", "Órgão", "Tipo", "Link"])
-
-    print("Inicializando a análise da IA")
-    for pub in tqdm(pub_cont):
-        content = pub[0]
-        orgao = pub[1]
-        tipo = pub[2]
-        link = pub[3]
+######### LISTAGEM DAS OBRAS E SERV. ENG. NO DOU #########
+while True:
+    while True:
         try:
-            analise = gemini(proxy, api_gemini, content, descricao)
-            nova_linha = {"Veredicto_AI": analise[0], "Justificativa": analise[1], "Objeto": analise[2], "Órgão": orgao, "Tipo": tipo, "Link": link}
-            saida_ai = pd.concat([saida_ai, pd.DataFrame([nova_linha])], ignore_index=True)
+            analise_obra = gemini2(proxy, api_gemini, content)
+            analise_obra_list = analise_obra.split("###")
+            if analise_obra_list[-1] == "\n":
+                analise_obra_list = analise_obra_list[:-1]
+            print(analise_obra_list)
+            
+            #analise_obra_list = [item for item in analise_obra_list if item != "" and item != "\n"]
         except Exception as e:
             print(f"Erro ao processar conteúdo: {e}")
+
+        parecer_obra = []
+
+        for analise in analise_obra_list:
+            # Usa splitlines() para dividir as linhas e filtra as linhas vazias
+            temp = [linha for linha in analise.splitlines() if linha.strip()]
+            parecer_obra.append(temp)
+
+        # Filtra os valores vazios
+        parecer_obra = [sublista for sublista in parecer_obra if sublista]
+
+        print(f"Analise da IA: {len(parecer_obra)}")
+        print(f"DOU: {len(orgao)}")
+
+        # Verifica se o tamanho do resultado da IA bate com o
+        if len(parecer_obra) == len(orgao):
+            break
         # Aguardar antes de fazer a próxima solicitação
-        time.sleep(intervalo_entre_solicitacoes)
+        print("Fazendo novamente...")
+        time.sleep(10)
 
-    print("Finalizada a análise da IA")
+    try:
+        #saida_obra = pd.DataFrame(parecer_obra, columns=["Veredicto_AI", "Justificativa", "Objeto"])
+        saida_obra = pd.DataFrame(parecer_obra, columns=["Veredicto_AI", "Justificativa", "Objeto"])
+        saida_obra['Órgão'] = orgao
+        saida_obra['Tipo'] = tipo
+        saida_obra['Link'] = link
+        break
+    except Exception as e:
+        print(f"Erro ao processar conteúdo: {e}")
 
-    ######### APLICAÇÃO DA LÓGICA FUZZY #########
+# Filtrar as linhas onde a similaridade do veredicto com "sim" é maior que 70
+saida_obra["similaridade"] = saida_obra["Veredicto_AI"].apply(calcular_ratio)
+condicao_obra = saida_obra["similaridade"] > 70
+saida_obra = saida_obra.loc[condicao_obra]
 
-    score_corte = 45
+saida_obra = saida_obra[['Objeto','Tipo','Órgão','Veredicto_AI','Justificativa','Link']]
+saida_obra['Objeto'] = saida_obra['Objeto'].str.replace("Objeto: ", "", regex=False)
+saida_obra['Objeto'] = saida_obra['Objeto'].str.replace("\n", "", regex=False)
 
-    descricao_norm = normalizar_string(descricao)
+conteudo_html += f"<br><br><h1>Obras e Serviços de Engenharia tratados no DOU</h1>\n"
 
-    saida_ai["Score_fuzzy"] = [fuzz.ratio(descricao_norm, normalizar_string(x)) for x in saida_ai["Objeto"]]
-    saida_ai["Veredicto_fuzzy"] = ["SIM" if fuzz.ratio(descricao_norm, normalizar_string(x)) > score_corte else "NÃO" for x in saida_ai["Objeto"]]
+# Gerar o HTML da tabela ou, para o caso de não ter respostas, criar um parágrafo dizendo que nada foi encontrado
+if saida_obra.empty:
+    tabela_html = "<p style='text-align: center;'>Não foram encontrados obras e serviços de engenharia</p>"
+else:
+    tabela_html = saida_obra.to_html(index=False, justify='center', border=1, classes='table table-striped', escape=False)
 
-    print(saida_ai)
+conteudo_html += f"<br>\n{tabela_html}\n<br><br>\n"
 
-    ######### SAÍDA #########
 
-    # Aplicar a função calcular_ratio à coluna 'Veredicto_AI' e criar uma nova coluna com os resultados
-    saida_ai["similaridade_ai"] = saida_ai["Veredicto_AI"].apply(calcular_ratio)
-
-    # Aplicar a função calcular_ratio à coluna 'Veredicto_fuzzy' e criar uma nova coluna com os resultados
-    saida_ai["similaridade_fuzzy"] = saida_ai["Veredicto_fuzzy"].apply(calcular_ratio)
-
-    # Filtrar as linhas onde a similaridade do veredicto com "sim" é maior que 70
-    condicao_positiva_ai = saida_ai["similaridade_ai"] > 70
-    condicao_positiva_fuzzy = saida_ai["similaridade_fuzzy"] > 70  
-
-    #Saída para atendimento das duas condições (IA e fuzzy)
-    saida = saida_ai.loc[condicao_positiva_ai | condicao_positiva_fuzzy]
-    saida = saida[['Objeto','Tipo','Órgão','Veredicto_AI','Justificativa','Veredicto_fuzzy','Score_fuzzy','Link']]
-    saida['Objeto'] = saida['Objeto'].str.replace("Objeto: ", "", regex=False)
-    saida['Objeto'] = saida['Objeto'].str.replace("\n", "", regex=False)
-    
-    #if saida.empty:
-    #    print("Não foram encontrados dados compatíveis com a descrição fornecida, de acordo com a IA e com a lógica de Levenshtein")
-    #else:
-    #    print(saida)
-
-    # Gerar o HTML da tabela ou, para o caso de não ter respostas, criar um parágrafo dizendo que nada foi encontrado
-    if saida.empty:
-        tabela_html = "<p style='text-align: center;'>Não foram encontrados dados compatíveis com a descrição fornecida, de acordo com a IA e com a lógica de Levenshtein</p>"
-    else:
-        tabela_html = saida.to_html(index=False, justify='center', border=1, classes='table table-striped', escape=False)
-
-    # Ler o template HTML
-    with open('template_saida.html', 'r', encoding='utf-8') as file:
-        html_template = file.read()
-
-    conteudo_html += f"<h2>{descricao}</h2>\n{tabela_html}\n<br><br>\n"
-
-    # Verifique se o conteúdo do template foi lido corretamente
-    if not html_template:
-        print("O template HTML está vazio ou não foi lido corretamente.")
-    else:
-        # Substituir os espaços reservados pelo título e pela tabela
-        html_content = html_template.replace("{{conteudo}}", conteudo_html)
-    
-
+######### CRIAÇÃO DO PDF E ENVIO DO E-MAIL #########
+# Ler o template HTML
+with open('template_saida.html', 'r', encoding='utf-8') as file:
+    html_template = file.read()
+# Verifique se o conteúdo do template foi lido corretamente
+if not html_template:
+    print("O template HTML está vazio ou não foi lido corretamente.")
+else:
+    # Substituir os espaços reservados pelo título e pela tabela
+    html_content = html_template.replace("{{conteudo}}", conteudo_html)
 # Salvar o HTML em um arquivo no diretório com codificação utf-8
 # Nome do arquivo PDF com a data atual
 data_atual = datetime.now().strftime('%Y%m%d')
@@ -157,6 +153,17 @@ nome_arquivo = f"{data_atual}_busca_dou.html"
 with open(nome_arquivo, 'w', encoding='utf-8') as file:
     file.write(html_content)
 
+# Gerar o pdf
+caminho_pdf = "saida.pdf"
+gerar_pdf(conteudo_html, caminho_pdf)
+
+# Enviar e-mail
+conteudo = f"Prezados, \n\nO relatório de análise de inclusão de obras e serviços de engenharia no DOU ({date}) se encontra em anexo. \n\nRespeitosamente, ECCP"
+assunto = f"Relatório diário - DOU - {date}"
+enviar_email(proxy, conteudo, assunto, caminho_pdf)
+
 
 elapsed_time = time.time() - start_time
 print(f"Tempo de execução: {elapsed_time} segundos")
+
+
