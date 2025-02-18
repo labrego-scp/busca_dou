@@ -25,11 +25,10 @@ jobs:
 
       - name: Criar arquivo .env com variáveis secretas
         run: |
-          echo "VAR1=${{ secrets.VAR1 }}" >> .env
-          echo "VAR2=${{ secrets.VAR2 }}" >> .env
-          echo "VAR3=${{ secrets.VAR3 }}" >> .env
-          echo "VAR4=${{ secrets.VAR4 }}" >> .env
-          echo "VAR5=${{ secrets.VAR5 }}" >> .env
+          echo "GEMINI_KEY=${{ secrets.GEMINI_KEY }}" >> .env
+          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> .env
+          echo "VAR3RECEIVER_EMAIL=${{ secrets.RECEIVER_EMAIL }}" >> .env
+          echo "SENDER_EMAIL=${{ secrets.SENDER_EMAIL }}" >> .env
 
       - name: Executar o script
         run: python dou.py
