@@ -12,8 +12,8 @@ def gemini2(proxy, api_gemini, content):
     senha = proxy[1]
     adress = proxy[2]
 
-    os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-    os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+    #os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+    #os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
 
     genai.configure(api_key=api_gemini) #DADO SENSÍVEL
 
