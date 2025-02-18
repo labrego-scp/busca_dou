@@ -84,7 +84,15 @@ def get_urls(proxy, date):
             url_titles.append(item.get('urlTitle'))
 
     #print(url_titles)
-    print(len(url_titles))
+    #print(len(url_titles))
+
+    # Remover arquivos temporários
+    try:
+        os.remove("output.html")
+        os.remove("organized_data.json")
+        print("Arquivos temporários removidos com sucesso.")
+    except Exception as e:
+        print(f"Erro ao remover arquivos temporários: {e}")
 
     return (url_titles)
 
@@ -131,6 +139,13 @@ def get_pub_content(proxy, url):
     # Encontra a tag "title"
     texto_dou_title = soup.find('title')
     titulo = texto_dou_title.get_text(strip=True)
+
+    # Remover o arquivo temporário
+    try:
+        os.remove("output_pub.html")
+        print("Arquivo output_pub.html removido com sucesso.")
+    except Exception as e:
+        print(f"Erro ao remover output_pub.html: {e}")
     
     return texto_dou_content, orgao, titulo
 

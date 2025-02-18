@@ -41,7 +41,7 @@ proxy = [usuario, senha, adress]
 
 # Define a data
 date = datetime.now().strftime('%d/%m/%Y')
-date = "30/01/2025"
+#date = "31/01/2025"
 
 print("Inicializando a coleta dos dados no DOU")
 try:
@@ -162,6 +162,13 @@ conteudo = f"Prezados, \n\nO relatório de análise de inclusão de obras e serv
 assunto = f"Relatório diário - DOU - {date}"
 enviar_email(proxy, conteudo, assunto, caminho_pdf)
 
+# Remover arquivos temporários após o envio do e-mail
+try:
+    os.remove(nome_arquivo)  # Remove o arquivo HTML
+    os.remove(caminho_pdf)  # Remove o arquivo PDF
+    print("Arquivos temporários removidos com sucesso.")
+except Exception as e:
+    print(f"Erro ao remover arquivos temporários: {e}")
 
 elapsed_time = time.time() - start_time
 print(f"Tempo de execução: {elapsed_time} segundos")

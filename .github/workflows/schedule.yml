@@ -1,0 +1,35 @@
+name: Execute dou script
+
+on:
+  schedule:
+    - cron: "0 3 * * *"  # Executa todo dia às 03:00 UTC (ajuste para seu fuso horário)
+  workflow_dispatch:  # Permite execução manual
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Criar arquivo .env com variáveis secretas
+        run: |
+          echo "VAR1=${{ secrets.VAR1 }}" >> .env
+          echo "VAR2=${{ secrets.VAR2 }}" >> .env
+          echo "VAR3=${{ secrets.VAR3 }}" >> .env
+          echo "VAR4=${{ secrets.VAR4 }}" >> .env
+          echo "VAR5=${{ secrets.VAR5 }}" >> .env
+
+      - name: Executar o script
+        run: dou.py
