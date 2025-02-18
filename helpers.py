@@ -40,8 +40,8 @@ def enviar_email(proxy, conteudo, assunto, caminho_pdf):
     usuario = proxy[0]    
     senha = proxy[1]
     adress = proxy[2]
-    os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-    os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+    #os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+    #os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
 
     # Criando a mensagem de e-mail
     mensagem = MIMEMultipart("alternative")
