@@ -32,4 +32,4 @@ jobs:
           echo "VAR5=${{ secrets.VAR5 }}" >> .env
 
       - name: Executar o script
-        run: dou.py
+        run: python dou.py
