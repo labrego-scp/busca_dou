@@ -6,16 +6,8 @@ import json
 from datetime import datetime
 
 
-def get_urls(proxy, date):
+def get_urls(date):
     
-    usuario = proxy[0]
-    senha = proxy[1]
-    adress = proxy[2]
-
-    #os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-    #os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-
-
     data_inicial = date
     data_inicial_obj = datetime.strptime(data_inicial, "%d/%m/%Y")
     ano_inicial = data_inicial_obj.year
@@ -96,14 +88,7 @@ def get_urls(proxy, date):
 
     return (url_titles)
 
-def get_pub_content(proxy, url):
-
-    usuario = proxy[0]    
-    senha = proxy[1]
-    adress = proxy[2]
-
-    #os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-    #os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+def get_pub_content(url):
 
     url = f"https://www.in.gov.br/web/dou/-/{url}"
 
@@ -150,16 +135,16 @@ def get_pub_content(proxy, url):
     return texto_dou_content, orgao, titulo
 
 
-def edc(proxy, date):  
+def edc(date):  
 
     # Aciona a função que vai listas as urls das publicações do dia
-    urls = get_urls(proxy, date)
+    urls = get_urls(date)
 
     # Aciona a função que extrai o conteúdo da publicação
     pub_cont = []
     
     for url in tqdm(urls):
-        conteudo = get_pub_content(proxy, url) # O conteúdo da publicação é salvo no índice 0, o órgão é salvo no índice 1 e o título (tipo) no 2
+        conteudo = get_pub_content(url) # O conteúdo da publicação é salvo no índice 0, o órgão é salvo no índice 1 e o título (tipo) no 2
         #link = f"https://www.in.gov.br/web/dou/-/{url}"
         link = f'<a href="https://www.in.gov.br/web/dou/-/{url}">Publicação</a>'
         conteudo = conteudo + (link,) # A url é incluída na posição 3 da lista

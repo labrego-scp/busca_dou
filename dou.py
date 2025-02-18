@@ -28,14 +28,7 @@ conteudo_html = "<meta charset='UTF-8'>"
 load_dotenv()
 api_gemini = os.getenv('GEMINI_KEY')
 cred_google = os.getenv('GSHEET_CRED')
-url_sheet = os.getenv('GSHEET_KEY_SHEET')
 
-# Proxy
-usuario = os.getenv('USUARIO_PROXY')
-senha_bruta = os.getenv('PASS_PROXY')
-senha = urllib.parse.quote(senha_bruta, safe='')
-adress = os.getenv('ENDERECO_PROXY')
-proxy = [usuario, senha, adress]
 
 ######### COLETA DOS DADOS DAS PUBLICAÇÕES DO DIA #########
 
@@ -45,7 +38,7 @@ date = datetime.now().strftime('%d/%m/%Y')
 
 print("Inicializando a coleta dos dados no DOU")
 try:
-    pub_cont = edc(proxy, date) # São criados n itens na lista pub_cont, onde n é o número de publicações naquela data. Cada lista é composta por uma lista com duas posições. A posição 0 corresponde ao conteúdo da publicação, o índice 1 corresponde ao órgão, o índice 2 corresponde ao tipo e o 3 ao link.
+    pub_cont = edc(date) # São criados n itens na lista pub_cont, onde n é o número de publicações naquela data. Cada lista é composta por uma lista com duas posições. A posição 0 corresponde ao conteúdo da publicação, o índice 1 corresponde ao órgão, o índice 2 corresponde ao tipo e o 3 ao link.
 except Exception as e:
     if "proxy" in str(e):
         print("Erro: reveja as credenciais do proxy!")
@@ -76,7 +69,7 @@ publicacoes['link'] = link
 while True:
     while True:
         try:
-            analise_obra = gemini2(proxy, api_gemini, content)
+            analise_obra = gemini2(api_gemini, content)
             analise_obra_list = analise_obra.split("###")
             if analise_obra_list[-1] == "\n":
                 analise_obra_list = analise_obra_list[:-1]
@@ -160,7 +153,7 @@ gerar_pdf(conteudo_html, caminho_pdf)
 # Enviar e-mail
 conteudo = f"Prezados, \n\nO relatório de análise de inclusão de obras e serviços de engenharia no DOU ({date}) se encontra em anexo. \n\nRespeitosamente, ECCP"
 assunto = f"Relatório diário - DOU - {date}"
-enviar_email(proxy, conteudo, assunto, caminho_pdf)
+enviar_email(conteudo, assunto, caminho_pdf)
 
 # Remover arquivos temporários após o envio do e-mail
 try:

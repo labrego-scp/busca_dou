@@ -25,7 +25,7 @@ def calcular_ratio(veredicto):
     return fuzz.ratio(normalizar_string(veredicto), "sim")
 
 # Função para enviar o e-mail
-def enviar_email(proxy, conteudo, assunto, caminho_pdf):
+def enviar_email(conteudo, assunto, caminho_pdf):
     # Carrega variáveis de ambiente do arquivo .env
     load_dotenv()
 
@@ -35,13 +35,6 @@ def enviar_email(proxy, conteudo, assunto, caminho_pdf):
     receiver_email2 = os.getenv('RECEIVER_EMAIL2')
     receiver_email3 = os.getenv('RECEIVER_EMAIL3')
     password = os.getenv('EMAIL_PASSWORD')
-
-    # Proxy
-    usuario = proxy[0]    
-    senha = proxy[1]
-    adress = proxy[2]
-    #os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-    #os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
 
     # Criando a mensagem de e-mail
     mensagem = MIMEMultipart("alternative")

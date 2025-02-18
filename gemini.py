@@ -6,14 +6,7 @@ import google.generativeai as genai
 
 
 
-def gemini2(proxy, api_gemini, content):
-
-    usuario = proxy[0]    
-    senha = proxy[1]
-    adress = proxy[2]
-
-    #os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-    #os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+def gemini2(api_gemini, content):
 
     genai.configure(api_key=api_gemini) #DADO SENSÍVEL
 
