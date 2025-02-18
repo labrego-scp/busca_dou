@@ -12,8 +12,8 @@ def get_urls(proxy, date):
     senha = proxy[1]
     adress = proxy[2]
 
-    os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-    os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+    #os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+    #os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
 
 
     data_inicial = date
@@ -94,8 +94,8 @@ def get_pub_content(proxy, url):
     senha = proxy[1]
     adress = proxy[2]
 
-    os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
-    os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+    #os.environ['HTTP_PROXY'] = f'http://{usuario}:{senha}@{adress}'
+    #os.environ['HTTPS_PROXY'] = f'http://{usuario}:{senha}@{adress}'
 
     url = f"https://www.in.gov.br/web/dou/-/{url}"
 
