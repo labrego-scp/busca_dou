@@ -71,7 +71,8 @@ def enviar_email(conteudo, assunto, caminho_pdf):
 
     try:
         # Enviando o e-mail
-        with smtplib.SMTP("smtp.mail.intraer", 587) as server:
+        #with smtplib.SMTP("smtp.mail.intraer", 587) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, mensagem.as_string())
