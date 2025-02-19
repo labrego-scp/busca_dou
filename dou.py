@@ -67,7 +67,8 @@ publicacoes['link'] = link
 
 ######### LISTAGEM DAS OBRAS E SERV. ENG. NO DOU #########
 while True:
-    while True:
+    counter = 0
+    while True and counter < 60:
         try:
             analise_obra = gemini2(api_gemini, content)
             analise_obra_list = analise_obra.split("###")
@@ -97,6 +98,7 @@ while True:
             break
         # Aguardar antes de fazer a próxima solicitação
         print("Fazendo novamente...")
+        counter += 1
         time.sleep(10)
 
     try:
