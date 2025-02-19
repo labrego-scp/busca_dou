@@ -37,14 +37,30 @@ date = datetime.now().strftime('%d/%m/%Y')
 #date = "31/01/2025"
 
 print("Inicializando a coleta dos dados no DOU")
-try:
-    pub_cont = edc(date) # São criados n itens na lista pub_cont, onde n é o número de publicações naquela data. Cada lista é composta por uma lista com duas posições. A posição 0 corresponde ao conteúdo da publicação, o índice 1 corresponde ao órgão, o índice 2 corresponde ao tipo e o 3 ao link.
-except Exception as e:
-    if "proxy" in str(e):
-        print("Erro: reveja as credenciais do proxy!")
-    else:
-        print(f"Erro: {e}")
-    sys.exit(1)
+MAX_RETRIES = 10  # Número máximo de tentativas
+WAIT_TIME = 10   # Tempo de espera entre tentativas (em segundos)
+
+attempt = 0  # Contador de tentativas
+
+while attempt < MAX_RETRIES:
+    try:
+        pub_cont = edc(date)  # Tenta buscar os dados
+        break  # Se funcionar, sai do loop
+    except Exception as e:
+        if "proxy" in str(e):
+            print("Erro: reveja as credenciais do proxy!")
+            sys.exit(1)  # Sai do script se for erro de proxy
+
+        attempt += 1
+        print(f"Erro na tentativa {attempt}/{MAX_RETRIES}: {e}")
+
+        if attempt < MAX_RETRIES:
+            print(f"Tentando novamente em {WAIT_TIME} segundos...")
+            time.sleep(WAIT_TIME)  # Espera antes de tentar de novo
+        else:
+            print("Número máximo de tentativas atingido. Encerrando o script.")
+            sys.exit(1)  # Sai do script se todas as tentativas falharem
+
 print("Finalizada a coleta dos dados no DOU")
 
 publicacoes = dict()
