@@ -41,8 +41,7 @@ def enviar_email(conteudo, assunto, caminho_pdf):
     mensagem = MIMEMultipart("alternative")
     mensagem["Subject"] = assunto
     mensagem["From"] = sender_email
-    mensagem["To"] = receiver_email + ',' + receiver_email2 + ',' + receiver_email3 + ',' + receiver_email4
-    print(receiver_email + ', ' + receiver_email2 + ', ' + receiver_email3 + ', ' + receiver_email4)
+    mensagem["To"] = receiver_email + ', ' + receiver_email2 + ', ' + receiver_email3 + ', ' + receiver_email4
     
     # Adicionando o conteúdo do e-mail
     parte_texto = MIMEText(conteudo, "plain")
@@ -77,7 +76,7 @@ def enviar_email(conteudo, assunto, caminho_pdf):
         with smtplib.SMTP("smtp.fab.mil.br", 587) as server:
             server.starttls()
             server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, mensagem.as_string())
+            server.sendmail(sender_email, [receiver_email, receiver_email2, receiver_email3, receiver_email4], mensagem.as_string())
             #server.sendmail(sender_email, receiver_email2, mensagem.as_string())
             #server.sendmail(sender_email, receiver_email3, mensagem.as_string())
         print("E-mail enviado com sucesso!")
