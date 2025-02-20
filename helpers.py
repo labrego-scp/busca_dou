@@ -34,13 +34,14 @@ def enviar_email(conteudo, assunto, caminho_pdf):
     receiver_email = os.getenv('RECEIVER_EMAIL')
     receiver_email2 = os.getenv('RECEIVER_EMAIL2')
     receiver_email3 = os.getenv('RECEIVER_EMAIL3')
+    receiver_email4 = os.getenv('RECEIVER_EMAIL4')
     password = os.getenv('EMAIL_PASSWORD')
 
     # Criando a mensagem de e-mail
     mensagem = MIMEMultipart("alternative")
     mensagem["Subject"] = assunto
     mensagem["From"] = sender_email
-    mensagem["To"] = receiver_email + ',' + receiver_email2 + ',' + receiver_email3
+    mensagem["To"] = receiver_email + ',' + receiver_email2 + ',' + receiver_email3 + ',' + receiver_email4
     
     # Adicionando o conteúdo do e-mail
     parte_texto = MIMEText(conteudo, "plain")

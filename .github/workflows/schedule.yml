@@ -33,6 +33,7 @@ jobs:
           echo "RECEIVER_EMAIL=${{ secrets.RECEIVER_EMAIL }}" >> .env
           echo "RECEIVER_EMAIL2=${{ secrets.RECEIVER_EMAIL2 }}" >> .env
           echo "RECEIVER_EMAIL3=${{ secrets.RECEIVER_EMAIL3 }}" >> .env
+          echo "RECEIVER_EMAIL4=${{ secrets.RECEIVER_EMAIL4 }}" >> .env
           echo "SENDER_EMAIL=${{ secrets.SENDER_EMAIL }}" >> .env
 
       - name: Executar o script
