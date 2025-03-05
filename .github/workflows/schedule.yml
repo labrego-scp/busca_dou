@@ -23,8 +23,11 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Atualizar lista de pacotes
+        run: sudo apt-get update
+      
       - name: Instalar wkhtmltopdf
-        run: sudo apt-get install -y wkhtmltopdf
+        run: sudo apt-get install -y wkhtmltopdf --fix-missing
 
       - name: Criar arquivo .env com variáveis secretas
         run: |
