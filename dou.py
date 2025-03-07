@@ -37,7 +37,7 @@ date = datetime.now().strftime('%d/%m/%Y')
 #date = "31/01/2025"
 
 print("Inicializando a coleta dos dados no DOU")
-MAX_RETRIES = 10  # Número máximo de tentativas
+MAX_RETRIES = 30  # Número máximo de tentativas
 WAIT_TIME = 10   # Tempo de espera entre tentativas (em segundos)
 
 attempt = 0  # Contador de tentativas
