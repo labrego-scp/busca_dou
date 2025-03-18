@@ -28,12 +28,12 @@ def get_urls(date):
         "Connection": "keep-alive"
     }
 
+        # Fazer a solicitação HTTP com o proxy configurado através das variáveis de ambiente
+    response = requests.post(url, verify=False)
+
     # Verifica se a resposta é válida
     print(f"Status Code: {response.status_code}")
     print(response.text[:500])  # Exibe os primeiros 500 caracteres da resposta
-
-    # Fazer a solicitação HTTP com o proxy configurado através das variáveis de ambiente
-    response = requests.post(url, verify=False)
 
     # Verificar se há resultados ou não
     soup = BeautifulSoup(response.text, 'html.parser')
