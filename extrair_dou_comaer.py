@@ -20,6 +20,17 @@ def get_urls(date):
     url = f"https://www.in.gov.br/leiturajornal?data={dia_inicial_str}-{mes_inicial_str}-{ano_inicial_str}&secao=do3&org=Ministério%20da%20Defesa&org_sub=Comando%20da%20Aeronáutica"
 
     #print(url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Connection": "keep-alive"
+    }
+
+    # Verifica se a resposta é válida
+    print(f"Status Code: {response.status_code}")
+    print(response.text[:500])  # Exibe os primeiros 500 caracteres da resposta
 
     # Fazer a solicitação HTTP com o proxy configurado através das variáveis de ambiente
     response = requests.post(url, verify=False)
