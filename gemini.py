@@ -22,7 +22,7 @@ def gemini2(api_gemini, content):
     clause.append("'SIM (ou NÃO)'\n'[Justificativa 1]'\n'Objeto: [assunto 1]###")
     clause.append("'SIM (ou NÃO)'\n'[Justificativa 2]'\n'Objeto: [assunto 2]###")
     clause.append("... E assim por diante")
-
+    clause.append("Atente para não deixar sem resposta nenhum conteúdo.")
     prompt = "\n".join(clause)
     #print(prompt)
     
