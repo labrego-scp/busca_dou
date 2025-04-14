@@ -108,6 +108,8 @@ while True:
 
         print(f"Analise da IA: {len(parecer_obra)}")
         print(f"DOU: {len(orgao)}")
+        if len(orgao) == 0:
+            sys.exit(1)
 
         # Verifica se o tamanho do resultado da IA bate com o
         if len(parecer_obra) == len(orgao):
