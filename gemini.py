@@ -33,7 +33,7 @@ def gemini2(api_gemini, content):
             print(m.name)"""
 
     #model = genai.GenerativeModel('gemini-1.5-pro')
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-2.0-flash')
     #model = genai.GenerativeModel('gemini-1.0-pro')
 
     response = model.generate_content(prompt)
